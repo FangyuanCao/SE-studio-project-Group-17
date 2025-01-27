@@ -46,12 +46,14 @@ def home():
 BASE_URL = "https://dummyjson.com"
 
 @app.route('/products', methods=['GET'])
-def get_products():
+@token_required
+def get_products(current_user_id):
+    headers = {'Authorization': f'Bearer {request.cookies.get("token")}'}    
     response = requests.get(f"{BASE_URL}/products")
     if response.status_code != 200:
         return jsonify({'error': response.json()['message']}), response.status_code
     products = []
-    for product in response.json()['products']:
+    for product in response.json().get('products', []):
         product_data = {
             'id': product.get('id'),
             'title': product.get('title', 'No title'),
